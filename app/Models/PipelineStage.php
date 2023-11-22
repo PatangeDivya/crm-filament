@@ -10,4 +10,9 @@ class PipelineStage extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'is_default'];
+
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
 }
