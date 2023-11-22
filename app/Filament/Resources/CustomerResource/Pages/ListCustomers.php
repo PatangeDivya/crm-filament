@@ -21,7 +21,7 @@ class ListCustomers extends ListRecords
 
     public function getTabs(): array
     {
-        $tabs = ['all' => Tab::make('All')->badge($this->getModel()::count())];
+        $tabs = ['all' => Tab::make('All Customers')->badge($this->getModel()::count())];
  
         $pipelineStages = PipelineStage::withCount('customers')
             ->get();
