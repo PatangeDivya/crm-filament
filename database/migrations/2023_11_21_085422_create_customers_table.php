@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('lead_source_id')->constrained('lead_sources');
             $table->foreignId('tag_id')->constrained('tags');
-            $table->foreignId('pipeline_stage_id')->constrained('pipeline_stages');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email');

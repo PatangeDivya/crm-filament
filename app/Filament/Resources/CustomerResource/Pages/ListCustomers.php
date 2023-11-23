@@ -6,6 +6,7 @@ use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\CustomerResource;
+use App\Models\Customer;
 use App\Models\PipelineStage;
 
 class ListCustomers extends ListRecords
@@ -25,7 +26,7 @@ class ListCustomers extends ListRecords
  
         $pipelineStages = PipelineStage::withCount('customers')
             ->get();
- 
+
         foreach ($pipelineStages as $pipelineStage) {
             $name = $pipelineStage->name;
             $slug = str($name)->slug()->toString();
@@ -33,7 +34,9 @@ class ListCustomers extends ListRecords
             $tabs[$slug] = Tab::make($name)
                 ->badge($pipelineStage->customers_count)
                 ->modifyQueryUsing(function ($query) use ($pipelineStage) {
-                    return $query->where('pipeline_stage_id', $pipelineStage->id);
+                    return $query->whereHas('pipelineStages', function ($innerQuery) use($pipelineStage) {
+                        return $innerQuery->where('customer_pipeline_stage.pipeline_stage_id', $pipelineStage->id);
+                    });
                 });
         }
  

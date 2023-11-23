@@ -13,6 +13,13 @@ class PipelineStage extends Model
 
     public function customers()
     {
-        return $this->hasMany(Customer::class);
+        return $this->belongsToMany(
+            Customer::class,
+            'customer_pipeline_stage',
+            'pipeline_stage_id',
+            'customer_id'
+        )
+            ->withPivot('customer_id')
+            ->withTimestamps();
     }
 }

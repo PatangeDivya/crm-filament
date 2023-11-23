@@ -20,13 +20,30 @@ class Customer extends Model
         return $this->belongsTo(LeadSource::class);   
     }
 
-    public function pipelineStage()
+    public function pipelineStages()
     {
-        return $this->belongsTo(PipelineStage::class);   
+        return $this->belongsToMany(
+            PipelineStage::class,
+            'customer_pipeline_stage',
+            'customer_id',
+            'pipeline_stage_id'
+        )
+            ->withPivot('pipeline_stage_id', 'customer_id', 'notes')
+            ->withTimestamps();
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
     }
 
     public function tag()
     {
         return $this->belongsTo(Tag::class);   
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

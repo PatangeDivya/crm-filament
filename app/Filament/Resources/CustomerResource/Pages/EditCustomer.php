@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\CustomerResource\Pages;
 
-use App\Filament\Resources\CustomerResource;
+use Exception;
 use Filament\Actions;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\CustomerResource;
 
 class EditCustomer extends EditRecord
 {
@@ -38,5 +42,35 @@ class EditCustomer extends EditRecord
         }
     
         return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        DB::beginTransaction();
+
+        try {
+            $record->user_id = $data['employee_id'];
+            $record->first_name = $data['first_name'];
+            $record->last_name = $data['last_name'];
+            $record->email = $data['email'];
+            $record->phone_number = $data['phone_number'];
+            $record->description = $data['description'];
+            $record->lead_source_id = $data['lead_source_id'];
+            $record->tag_id = $data['tag_id'];
+            $record->additional_details = json_encode($data['additional_details']);
+            $record->save();
+        
+            $record->pipelineStages()->sync($data['pipeline_stage_id']);
+
+            DB::commit();
+
+            return $record;
+        } catch (Exception $e) {
+            Log::debug($e->getMessage());
+
+            DB::rollBack();
+
+            return null;
+        }
     }
 }
