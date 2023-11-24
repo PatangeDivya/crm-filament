@@ -32,6 +32,11 @@ class Customer extends Model
             ->withTimestamps();
     }
 
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
     public function tasks()
     {
         return $this->hasMany(Task::class);

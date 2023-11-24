@@ -23,9 +23,11 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CustomerResource\Pages;
@@ -95,6 +97,33 @@ class CustomerResource extends Resource
                             ->label('Pipeline Stage')
                             ->options(PipelineStage::pluck('name', 'id')->toArray())
                     ]),
+                Section::make('Documents')
+                    ->schema([
+                        Repeater::make('documents')
+                            ->label('')
+                            ->columns(2)
+                            ->relationship()
+                            ->schema([
+                                FileUpload::make('filepath')
+                                    ->label('Filepath')
+                                    ->required()
+                                    ->storeFiles(false),
+                                Textarea::make('comments')
+                            ])
+                            ->addActionLabel('Add Document')
+                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                $filepath =  $data['filepath']->store('documents', 'public');
+    
+                                if ($filepath) {
+                                    $data['filename'] = $data['filepath']->getClientOriginalName();
+                                    $data['filesize'] = $data['filepath']->getSize();
+                                    $data['filepath'] = $filepath;
+                                }
+                         
+                                return $data;
+                            })
+                    ])
+                    ->visible(fn (?Model $record): bool => ! is_null($record) ),
                 Section::make('Additional Fields')
                     ->schema([
                         Repeater::make('additional_details')
@@ -182,13 +211,6 @@ class CustomerResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
