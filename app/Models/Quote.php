@@ -11,9 +11,13 @@ class Quote extends Model
 
     protected $fillable = ['customer_id', 'subtotal', 'taxes', 'total'];
 
-    public function products()
+    public function quoteProducts()
     {
-        return $this->belongsToMany(Product::class, 'quote_product', 'quote_id', 'product_id')
-            ->withPivot('product_id', 'quote_id', 'price', 'quantity');
+        return $this->hasMany(QuoteProduct::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }
